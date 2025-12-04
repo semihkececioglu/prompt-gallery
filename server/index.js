@@ -9,10 +9,12 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors({
-  origin: process.env.CLIENT_URL || '*',
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL || "*",
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 // Data dosyası yolu
@@ -178,12 +180,10 @@ const authMiddleware = (req, res, next) => {
   }
 };
 
-// Server'ı başlat (local development için)
-if (process.env.NODE_ENV !== 'production') {
-  app.listen(PORT, () => {
-    console.log(`✅ Server çalışıyor: http://localhost:${PORT}`);
-  });
-}
+// Server'ı başlat
+app.listen(PORT, () => {
+  console.log(`✅ Server çalışıyor: http://localhost:${PORT}`);
+});
 
 // Vercel için export
 module.exports = app;
