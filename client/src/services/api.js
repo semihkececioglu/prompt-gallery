@@ -36,6 +36,19 @@ export const updatePrompt = async (id, promptData) => {
   return response.data;
 };
 
+// Görsel yükle (Cloudinary)
+export const uploadImage = async (file) => {
+  const formData = new FormData();
+  formData.append("image", file);
+
+  const response = await axios.post(`${API_URL}/upload`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return response.data;
+};
+
 // Login
 export const login = async (username, password) => {
   const response = await api.post("/login", { username, password });

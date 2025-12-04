@@ -5,6 +5,9 @@ const mongoose = require("mongoose");
 const { v4: uuidv4 } = require("uuid");
 const Prompt = require("./models/Prompt");
 
+const multer = require("multer");
+const cloudinary = require("cloudinary").v2;
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -22,6 +25,27 @@ app.use(
   })
 );
 app.use(express.json());
+
+// Cloudinary yapılandırması
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+// Multer yapılandırması (memory storage)
+const storage = multer.memoryStorage();
+const upload = multer({
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith("image/")) {
+      cb(null, true);
+    } else {
+      cb(new Error("Sadece görsel dosyaları yüklenebilir"), false);
+    }
+  },
+});
 
 // ===================
 // API ROUTES
@@ -126,13 +150,46 @@ app.delete("/api/prompts/:id", async (req, res) => {
 });
 
 // ===================
+// UPLOAD
+// ===================
+
+// POST - Görsel yükle (Cloudinary)
+app.post("/api/upload", upload.single("image"), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "Görsel dosyası gerekli" });
+    }
+
+    // Buffer'ı base64'e çevir
+    const base64Image = `data:${
+      req.file.mimetype
+    };base64,${req.file.buffer.toString("base64")}`;
+
+    // Cloudinary'ye yükle
+    const result = await cloudinary.uploader.upload(base64Image, {
+      folder: "prompt-gallery",
+      resource_type: "image",
+    });
+
+    res.json({
+      success: true,
+      url: result.secure_url,
+      public_id: result.public_id,
+    });
+  } catch (error) {
+    console.error("Upload hatası:", error);
+    res.status(500).json({ error: "Görsel yüklenemedi" });
+  }
+});
+
+// ===================
 // AUTH
 // ===================
 
 // Admin bilgileri .env'den alınıyor
 const ADMIN_USER = {
-  username: process.env.ADMIN_USERNAME || "admin",
-  password: process.env.ADMIN_PASSWORD || "admin123",
+  username: process.env.ADMIN_USERNAME,
+  password: process.env.ADMIN_PASSWORD,
 };
 
 const AUTH_TOKEN = process.env.AUTH_TOKEN || "simple-secret-token-12345";

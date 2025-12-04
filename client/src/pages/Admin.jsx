@@ -6,6 +6,7 @@ import {
   deletePrompt,
   updatePrompt,
   login,
+  uploadImage,
 } from "../services/api";
 import Snackbar from "../components/Snackbar";
 import AlertModal from "../components/AlertModal";
@@ -22,6 +23,7 @@ import {
   Shirt,
   ChevronLeft,
   ChevronRight,
+  Upload,
 } from "lucide-react";
 
 function Admin() {
@@ -34,6 +36,9 @@ function Admin() {
   // Data state
   const [prompts, setPrompts] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  // Upload state
+  const [uploading, setUploading] = useState(false);
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -136,6 +141,27 @@ function Admin() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Cloudinary görsel yükleme
+  const handleImageUpload = async (e, isEdit = false) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploading(true);
+    try {
+      const result = await uploadImage(file);
+      if (isEdit) {
+        setEditFormData((prev) => ({ ...prev, image: result.url }));
+      } else {
+        setFormData((prev) => ({ ...prev, image: result.url }));
+      }
+      showSnackbar("Görsel yüklendi!", "success");
+    } catch (err) {
+      showSnackbar("Görsel yüklenemedi", "error");
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -215,15 +241,19 @@ function Admin() {
   };
 
   // Filter prompts by search query
-  const filteredPrompts = prompts.filter((prompt) =>
-    prompt.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    prompt.description?.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredPrompts = prompts.filter(
+    (prompt) =>
+      prompt.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      prompt.description?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Pagination
   const indexOfLastPrompt = currentPage * promptsPerPage;
   const indexOfFirstPrompt = indexOfLastPrompt - promptsPerPage;
-  const currentPrompts = filteredPrompts.slice(indexOfFirstPrompt, indexOfLastPrompt);
+  const currentPrompts = filteredPrompts.slice(
+    indexOfFirstPrompt,
+    indexOfLastPrompt
+  );
   const totalPages = Math.ceil(filteredPrompts.length / promptsPerPage);
 
   const goToPage = (page) => {
@@ -239,8 +269,12 @@ function Admin() {
             <div className="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-600 flex items-center justify-center text-white mb-5 shadow-xl">
               <Lock size={28} strokeWidth={2.5} />
             </div>
-            <h1 className="text-2xl font-bold text-primary mb-2">Admin Panel</h1>
-            <p className="text-secondary text-sm">Devam etmek için giriş yapın</p>
+            <h1 className="text-2xl font-bold text-primary mb-2">
+              Admin Panel
+            </h1>
+            <p className="text-secondary text-sm">
+              Devam etmek için giriş yapın
+            </p>
           </div>
 
           <form onSubmit={handleLogin} className="space-y-4">
@@ -343,7 +377,7 @@ function Admin() {
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* SOL: Ekleme Formu */}
-          <div className="glass-card rounded-2xl p-5 animate-slide-up shadow-xl h-[580px]">
+          <div className="glass-card rounded-2xl p-5 animate-slide-up shadow-xl h-[620px]">
             <h2 className="text-base font-bold text-primary mb-4 flex items-center gap-2">
               <Plus size={18} />
               Yeni Prompt Ekle
@@ -366,16 +400,37 @@ function Admin() {
 
               <div>
                 <label className="block text-xs font-medium text-secondary mb-1.5">
-                  Görsel URL
+                  Görsel
                 </label>
+
+                {/* Upload Button */}
+                <button
+                  type="button"
+                  onClick={() => document.getElementById("file-upload").click()}
+                  disabled={uploading}
+                  className="w-full py-2 px-3 mb-2 text-xs font-medium rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition flex items-center justify-center gap-1.5 disabled:opacity-50"
+                >
+                  <Upload size={14} />
+                  {uploading ? "Yükleniyor..." : "Dosya Yükle"}
+                </button>
+
+                <input
+                  id="file-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleImageUpload(e, false)}
+                  className="hidden"
+                />
+
                 <input
                   type="text"
                   name="image"
                   value={formData.image}
                   onChange={handleFormChange}
                   className="w-full px-3 py-2 text-sm glass-input rounded-lg focus:outline-none"
-                  placeholder="https://example.com/image.jpg"
+                  placeholder="veya URL yapıştır"
                 />
+
                 {formData.image && (
                   <div className="mt-2 relative group">
                     <img
@@ -385,7 +440,9 @@ function Admin() {
                     />
                     <button
                       type="button"
-                      onClick={() => setFormData((prev) => ({ ...prev, image: "" }))}
+                      onClick={() =>
+                        setFormData((prev) => ({ ...prev, image: "" }))
+                      }
                       className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition opacity-0 group-hover:opacity-100"
                     >
                       <X size={12} />
@@ -434,7 +491,7 @@ function Admin() {
 
           {/* SAĞ: Mevcut Promptlar */}
           <div className="animate-slide-up" style={{ animationDelay: "0.1s" }}>
-            <div className="glass-card rounded-2xl p-5 shadow-xl h-[580px] flex flex-col">
+            <div className="glass-card rounded-2xl p-5 shadow-xl h-[620px] flex flex-col">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-base font-bold text-primary flex items-center gap-2">
                   <Shirt size={18} />
@@ -534,19 +591,21 @@ function Admin() {
                         <ChevronLeft size={16} />
                       </button>
 
-                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                        <button
-                          key={page}
-                          onClick={() => goToPage(page)}
-                          className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-medium transition ${
-                            currentPage === page
-                              ? "bg-indigo-500 text-white"
-                              : "bg-white/50 text-gray-700 hover:bg-white/80"
-                          }`}
-                        >
-                          {page}
-                        </button>
-                      ))}
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                        (page) => (
+                          <button
+                            key={page}
+                            onClick={() => goToPage(page)}
+                            className={`w-8 h-8 flex items-center justify-center rounded-lg text-xs font-medium transition ${
+                              currentPage === page
+                                ? "bg-indigo-500 text-white"
+                                : "bg-white/50 text-gray-700 hover:bg-white/80"
+                            }`}
+                          >
+                            {page}
+                          </button>
+                        )
+                      )}
 
                       <button
                         onClick={() => goToPage(currentPage + 1)}
@@ -599,16 +658,39 @@ function Admin() {
 
               <div>
                 <label className="block text-sm font-medium text-secondary mb-2">
-                  Görsel URL
+                  Görsel
                 </label>
+
+                {/* Upload Button */}
+                <button
+                  type="button"
+                  onClick={() =>
+                    document.getElementById("edit-file-upload").click()
+                  }
+                  disabled={uploading}
+                  className="w-full py-2 px-3 mb-2 text-sm font-medium rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition flex items-center justify-center gap-1.5 disabled:opacity-50"
+                >
+                  <Upload size={14} />
+                  {uploading ? "Yükleniyor..." : "Dosya Yükle"}
+                </button>
+
+                <input
+                  id="edit-file-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleImageUpload(e, true)}
+                  className="hidden"
+                />
+
                 <input
                   type="text"
                   name="image"
                   value={editFormData.image}
                   onChange={handleEditFormChange}
                   className="w-full px-4 py-2.5 text-sm glass-input rounded-xl focus:outline-none"
-                  placeholder="https://example.com/image.jpg"
+                  placeholder="veya URL yapıştır"
                 />
+
                 {editFormData.image && (
                   <div className="mt-3 relative group">
                     <img
@@ -618,7 +700,9 @@ function Admin() {
                     />
                     <button
                       type="button"
-                      onClick={() => setEditFormData((prev) => ({ ...prev, image: "" }))}
+                      onClick={() =>
+                        setEditFormData((prev) => ({ ...prev, image: "" }))
+                      }
                       className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-lg hover:bg-red-600 transition opacity-0 group-hover:opacity-100"
                     >
                       <X size={14} />
