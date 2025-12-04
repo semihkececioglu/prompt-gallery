@@ -42,7 +42,7 @@ function Admin() {
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const promptsPerPage = 6;
+  const promptsPerPage = 5;
 
   // Search state
   const [searchQuery, setSearchQuery] = useState("");
