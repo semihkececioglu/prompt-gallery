@@ -339,7 +339,7 @@ function Admin() {
 
   // ADMIN PANEL
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-indigo-50/30 to-purple-50/30">
+    <div className="min-h-screen lg:h-screen lg:overflow-hidden bg-gradient-to-br from-gray-50 via-indigo-50/30 to-purple-50/30 flex flex-col">
       {/* Header - Home Style */}
       <header className="px-4 sm:px-6 pt-6">
         <div className="max-w-3xl mx-auto">
@@ -374,114 +374,118 @@ function Admin() {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 flex-1 lg:overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:h-full">
           {/* SOL: Ekleme Formu */}
-          <div className="glass-card rounded-2xl p-5 animate-slide-up shadow-xl h-[620px]">
+          <div className="glass-card rounded-2xl p-5 animate-slide-up shadow-xl lg:h-full flex flex-col">
             <h2 className="text-base font-bold text-primary mb-4 flex items-center gap-2">
               <Plus size={18} />
               Yeni Prompt Ekle
             </h2>
 
-            <form onSubmit={handleSubmit} className="space-y-3">
-              <div>
-                <label className="block text-xs font-medium text-secondary mb-1.5">
-                  Başlık *
-                </label>
-                <input
-                  type="text"
-                  name="title"
-                  value={formData.title}
-                  onChange={handleFormChange}
-                  className="w-full px-3 py-2 text-sm glass-input rounded-lg focus:outline-none"
-                  placeholder="Prompt başlığı"
-                />
-              </div>
+            <form onSubmit={handleSubmit} className="flex flex-col flex-1">
+              <div className="space-y-3 flex-1 overflow-y-auto pr-1">
+                <div>
+                  <label className="block text-xs font-medium text-secondary mb-1.5">
+                    Başlık *
+                  </label>
+                  <input
+                    type="text"
+                    name="title"
+                    value={formData.title}
+                    onChange={handleFormChange}
+                    className="w-full px-3 py-2 text-sm glass-input rounded-lg focus:outline-none"
+                    placeholder="Prompt başlığı"
+                  />
+                </div>
 
-              <div>
-                <label className="block text-xs font-medium text-secondary mb-1.5">
-                  Görsel
-                </label>
+                <div>
+                  <label className="block text-xs font-medium text-secondary mb-1.5">
+                    Görsel
+                  </label>
 
-                {/* Upload Button */}
-                <button
-                  type="button"
-                  onClick={() => document.getElementById("file-upload").click()}
-                  disabled={uploading}
-                  className="w-full py-2 px-3 mb-2 text-xs font-medium rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition flex items-center justify-center gap-1.5 disabled:opacity-50"
-                >
-                  <Upload size={14} />
-                  {uploading ? "Yükleniyor..." : "Dosya Yükle"}
-                </button>
+                  {/* Upload Button */}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      document.getElementById("file-upload").click()
+                    }
+                    disabled={uploading}
+                    className="w-full py-2 px-3 mb-2 text-xs font-medium rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition flex items-center justify-center gap-1.5 disabled:opacity-50"
+                  >
+                    <Upload size={14} />
+                    {uploading ? "Yükleniyor..." : "Dosya Yükle"}
+                  </button>
 
-                <input
-                  id="file-upload"
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleImageUpload(e, false)}
-                  className="hidden"
-                />
+                  <input
+                    id="file-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleImageUpload(e, false)}
+                    className="hidden"
+                  />
 
-                <input
-                  type="text"
-                  name="image"
-                  value={formData.image}
-                  onChange={handleFormChange}
-                  className="w-full px-3 py-2 text-sm glass-input rounded-lg focus:outline-none"
-                  placeholder="veya URL yapıştır"
-                />
+                  <input
+                    type="text"
+                    name="image"
+                    value={formData.image}
+                    onChange={handleFormChange}
+                    className="w-full px-3 py-2 text-sm glass-input rounded-lg focus:outline-none"
+                    placeholder="veya URL yapıştır"
+                  />
 
-                {formData.image && (
-                  <div className="mt-2 relative group">
-                    <img
-                      src={formData.image}
-                      alt="Preview"
-                      className="w-full h-28 object-contain rounded-lg bg-white/50"
-                    />
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setFormData((prev) => ({ ...prev, image: "" }))
-                      }
-                      className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition opacity-0 group-hover:opacity-100"
-                    >
-                      <X size={12} />
-                    </button>
-                  </div>
-                )}
-              </div>
+                  {formData.image && (
+                    <div className="mt-2 relative group">
+                      <img
+                        src={formData.image}
+                        alt="Preview"
+                        className="w-full h-28 object-contain rounded-lg bg-white/50"
+                      />
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setFormData((prev) => ({ ...prev, image: "" }))
+                        }
+                        className="absolute top-1 right-1 p-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition opacity-0 group-hover:opacity-100"
+                      >
+                        <X size={12} />
+                      </button>
+                    </div>
+                  )}
+                </div>
 
-              <div>
-                <label className="block text-xs font-medium text-secondary mb-1.5">
-                  Açıklama
-                </label>
-                <input
-                  type="text"
-                  name="description"
-                  value={formData.description}
-                  onChange={handleFormChange}
-                  className="w-full px-3 py-2 text-sm glass-input rounded-lg focus:outline-none"
-                  placeholder="Kısa açıklama"
-                />
-              </div>
+                <div>
+                  <label className="block text-xs font-medium text-secondary mb-1.5">
+                    Açıklama
+                  </label>
+                  <input
+                    type="text"
+                    name="description"
+                    value={formData.description}
+                    onChange={handleFormChange}
+                    className="w-full px-3 py-2 text-sm glass-input rounded-lg focus:outline-none"
+                    placeholder="Kısa açıklama"
+                  />
+                </div>
 
-              <div>
-                <label className="block text-xs font-medium text-secondary mb-1.5">
-                  Prompt *
-                </label>
-                <textarea
-                  name="prompt"
-                  value={formData.prompt}
-                  onChange={handleFormChange}
-                  rows={4}
-                  className="w-full px-3 py-2 text-sm glass-input rounded-lg focus:outline-none resize-none"
-                  placeholder="Prompt içeriği"
-                />
+                <div>
+                  <label className="block text-xs font-medium text-secondary mb-1.5">
+                    Prompt *
+                  </label>
+                  <textarea
+                    name="prompt"
+                    value={formData.prompt}
+                    onChange={handleFormChange}
+                    rows={4}
+                    className="w-full px-3 py-2 text-sm glass-input rounded-lg focus:outline-none resize-none"
+                    placeholder="Prompt içeriği"
+                  />
+                </div>
               </div>
 
               <button
                 type="submit"
-                className="w-full py-2.5 btn-success rounded-lg font-semibold text-sm flex items-center justify-center gap-2"
+                className="w-full py-2.5 btn-success rounded-lg font-semibold text-sm flex items-center justify-center gap-2 mt-3"
               >
                 <Plus size={16} />
                 Ekle
@@ -490,8 +494,11 @@ function Admin() {
           </div>
 
           {/* SAĞ: Mevcut Promptlar */}
-          <div className="animate-slide-up" style={{ animationDelay: "0.1s" }}>
-            <div className="glass-card rounded-2xl p-5 shadow-xl h-[620px] flex flex-col">
+          <div
+            className="animate-slide-up lg:h-full"
+            style={{ animationDelay: "0.1s" }}
+          >
+            <div className="glass-card rounded-2xl p-5 shadow-xl lg:h-full flex flex-col">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-base font-bold text-primary flex items-center gap-2">
                   <Shirt size={18} />
