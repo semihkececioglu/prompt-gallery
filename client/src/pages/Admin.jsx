@@ -10,6 +10,7 @@ import {
 } from "../services/api";
 import Snackbar from "../components/Snackbar";
 import AlertModal from "../components/AlertModal";
+import PromptSkeleton from "../components/PromptSkeleton";
 import {
   Settings,
   ExternalLink,
@@ -374,10 +375,10 @@ function Admin() {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 flex-1 lg:overflow-hidden">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:h-full">
+      <main className="w-full mx-auto px-4 sm:px-6 py-6 flex-1 lg:overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:h-full max-w-5xl mx-auto">
           {/* SOL: Ekleme Formu */}
-          <div className="glass-card rounded-2xl p-5 animate-slide-up shadow-xl lg:h-full flex flex-col">
+          <div className="glass-card rounded-2xl p-5 shadow-xl lg:h-full flex flex-col">
             <h2 className="text-base font-bold text-primary mb-4 flex items-center gap-2">
               <Plus size={18} />
               Yeni Prompt Ekle
@@ -494,10 +495,7 @@ function Admin() {
           </div>
 
           {/* SAĞ: Mevcut Promptlar */}
-          <div
-            className="animate-slide-up lg:h-full"
-            style={{ animationDelay: "0.1s" }}
-          >
+          <div className="lg:h-full">
             <div className="glass-card rounded-2xl p-5 shadow-xl lg:h-full flex flex-col">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-base font-bold text-primary flex items-center gap-2">
@@ -524,16 +522,25 @@ function Admin() {
               </div>
 
               {loading ? (
-                <div className="py-12 text-center">
-                  <div className="w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-                  <p className="text-secondary text-xs mt-3">Yükleniyor...</p>
-                </div>
+                <>
+                  <div className="space-y-2 mb-4 flex-1 overflow-y-auto">
+                    <PromptSkeleton count={5} />
+                  </div>
+                  {/* Pagination placeholder */}
+                  <div className="flex items-center justify-center gap-1">
+                    <div className="w-8 h-8 rounded-lg bg-gray-200 animate-pulse"></div>
+                    <div className="w-8 h-8 rounded-lg bg-gray-200 animate-pulse"></div>
+                    <div className="w-8 h-8 rounded-lg bg-gray-200 animate-pulse"></div>
+                  </div>
+                </>
               ) : filteredPrompts.length === 0 ? (
-                <div className="py-12 text-center">
-                  <Shirt size={32} className="mx-auto text-gray-400 mb-2" />
-                  <p className="text-secondary text-sm">
-                    {searchQuery ? "Sonuç bulunamadı" : "Henüz prompt yok"}
-                  </p>
+                <div className="flex-1 flex items-center justify-center">
+                  <div className="text-center">
+                    <Shirt size={32} className="mx-auto text-gray-400 mb-2" />
+                    <p className="text-secondary text-sm">
+                      {searchQuery ? "Sonuç bulunamadı" : "Henüz prompt yok"}
+                    </p>
+                  </div>
                 </div>
               ) : (
                 <>
